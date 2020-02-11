@@ -3,6 +3,8 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const session = require('express-session');
+const FileStore = require('session-file-store')(session);
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
@@ -30,12 +32,27 @@ app.set('view engine', 'jade');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser('my-secret-key'));
+// app.use(cookieParser('my-secret-key'));
+app.use(session({
+  name: 'session-id',
+  secret: 'my-secret-key',
+  saveUninitialized: false,
+  resave: false,
+  store: new FileStore()
+}))
+
+app.use(session({
+  name: 'session-id',
+  secret: 'my-secret-key',
+  saveUninitialized: false,
+  resave: false,
+  store: new FileStore()
+}));
 
 function auth(req, res, next) {
-  console.log(req.signedCookies);
-  if (!req.signedCookies.user) {
+  console.log(req.session);
 
+  if (!req.session.user) {
     let authHeader = req.headers.authorization;
     if (!authHeader) {
       let err = new Error('You are not authenticated!');
@@ -44,35 +61,30 @@ function auth(req, res, next) {
       next(err);
       return;
     }
-
-    // Authorization middleware
     let auth = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
-    let username = auth[0];
-    let password = auth[1];
-    if (username == 'admin' && password == 'password') {
-      res.cookie('user', 'admin', { signed: true })
-      next();
+    let user = auth[0];
+    let pass = auth[1];
+    if (user == 'admin' && pass == 'password') {
+      req.session.user = 'admin';
+      next(); // authorized
     } else {
       let err = new Error('You are not authenticated!');
       res.setHeader('WWW-Authenticate', 'Basic');
       err.status = 401;
       next(err);
     }
-
   }
-
-  // if user property exists in the cokie
   else {
-    if (req.signedCookies.user === 'admin')
+    if (req.session.user === 'admin') {
+      console.log('req.session: ', req.session);
       next();
+    }
     else {
-      let err = new Error('You are not authenticated!');
+      var err = new Error('You are not authenticated!');
       err.status = 401;
       next(err);
     }
   }
-
-
 }
 
 app.use(auth);
