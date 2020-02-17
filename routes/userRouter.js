@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const User = require('../models/users');
 const passport = require('passport');
+const authenticate = require('../authenticate');
 
 var userRouter = express.Router();
 userRouter.use(bodyParser.json());
@@ -30,9 +31,11 @@ userRouter.post('/signup', (req, res, next) => {
 });
 
 userRouter.post('/login', passport.authenticate('local'), (req, res) => {
+
+  const token = authenticate.getToken({_id: req.user._id}); // use the user_id to create the token
   res.statusCode = 200;
   res.setHeader('Content-Type', 'application/json');
-  res.json({success: true, status: 'You are successfully logged in!'});
+  res.json({success: true, token: token, status: 'You are successfully logged in!'});
 });
 
 // not sending anything in body so use get() method
