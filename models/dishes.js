@@ -15,8 +15,8 @@ const commentSchema = new Schema({
         required: true
     },
     author: {
-        type: String,
-        required: true
+        type: mongoose.Schema.Types.ObjectId, // reference to the user document
+        ref: 'User' // User model
     }
 }, {
     timestamps: true
@@ -76,12 +76,12 @@ module.exports = Dishes;
     	{
     		"rating": 5,
     		"comment": "A unique taste",
-    		"author": "Allan Smith"
+    		// "author": "Allan Smith"
 		},
 		{
     		"rating": 4,
     		"comment": "A combination of Adian and American cuisine",
-    		"author": "Lorem Ipsum"
+    		// "author": "Lorem Ipsum"
 		}
 	]
 }
