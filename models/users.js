@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const passportLocalMongoose = require('passport-local-mongoose');
 
-const User = new Schema({
+const userSchema = new Schema({
     firstname: {
         type: String,
         default: ''
@@ -17,6 +17,6 @@ const User = new Schema({
     }
 });
 // Will capture username and password and hash the password
-User.plugin(passportLocalMongoose);
+userSchema.plugin(passportLocalMongoose);
 
-module.exports = mongoose.model('User', User);
+module.exports = mongoose.model('User', userSchema);
