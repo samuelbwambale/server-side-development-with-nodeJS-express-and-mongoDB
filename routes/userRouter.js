@@ -3,23 +3,24 @@ const bodyParser = require('body-parser');
 const Users = require('../models/users');
 const passport = require('passport');
 const authenticate = require('../authenticate');
+const cors = require('./cors');
 
 var userRouter = express.Router();
 userRouter.use(bodyParser.json());
 
 /* GET users listing. */
 userRouter.route('/')
-    .get(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
-        Users.find({})
-            .then((users) => {
-                res.statusCode = 200;
-                res.setHeader('Content-Type', 'application/json');
-                res.json(users);
-            }, (err) => next(err))
-            .catch((err) => next(err));
-    });
+  .get(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+    Users.find({})
+      .then((users) => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(users);
+      }, (err) => next(err))
+      .catch((err) => next(err));
+  });
 
-userRouter.post('/signup', (req, res, next) => {
+userRouter.post('/signup', cors.corsWithOptions, (req, res, next) => {
   Users.register(new Users({ username: req.body.username }),
     req.body.password, (err, user) => {
       if (err) {
@@ -50,7 +51,7 @@ userRouter.post('/signup', (req, res, next) => {
     });
 });
 
-userRouter.post('/login', passport.authenticate('local'), (req, res) => {
+userRouter.post('/login', cors.corsWithOptions, passport.authenticate('local'), (req, res) => {
 
   const token = authenticate.getToken({ _id: req.user._id }); // use the user_id to create the token
   res.statusCode = 200;
@@ -59,7 +60,7 @@ userRouter.post('/login', passport.authenticate('local'), (req, res) => {
 });
 
 // not sending anything in body so use get() method
-userRouter.get('/logout', (req, res) => {
+userRouter.get('/logout', cors.corsWithOptions, (req, res) => {
   if (req.session) {
     req.session.destroy();
     res.clearCookie('session-id');
