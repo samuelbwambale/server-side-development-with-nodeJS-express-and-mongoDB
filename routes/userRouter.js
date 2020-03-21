@@ -73,5 +73,21 @@ userRouter.get('/logout', cors.corsWithOptions, (req, res) => {
   }
 });
 
+// Using OAuth with Passport and Facebook
+
+// The user application, the client in this case, will pass in the Facebook access token that it has just obtained from Facebook. 
+// And then our express server will then use the Facebook access token to verify the user on Facebook. 
+// And then if the user is acknowledged by Facebook to be a legitimate user, then our express server will return a 
+// JSON wed token to our client. And then our client is authenticated and then can proceed forward with carrying out 
+// the other operations using the JSON wed token in the header of all the request messages. 
+userRouter.get('/facebook/token', passport.authenticate('facebook-token'), (req, res) => {
+  if (req.user) {
+    var token = authenticate.getToken({ _id: req.user._id });
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    res.json({ success: true, token: token, status: 'You are successfully logged in!' });
+  }
+});
+
 
 module.exports = userRouter;

@@ -14,9 +14,15 @@ const userSchema = new Schema({
     admin: {
         type: Boolean,
         default: false
-    }
+    },
+    facebookId: String,
 });
 // Will capture username and password and hash the password
 userSchema.plugin(passportLocalMongoose);
 
 module.exports = mongoose.model('User', userSchema);
+
+// {
+//     "username": "admin",
+//     "password": "password"
+// }
