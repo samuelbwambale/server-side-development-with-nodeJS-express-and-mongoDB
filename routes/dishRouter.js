@@ -22,7 +22,6 @@ dishRouter.route('/')
     .post(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
         Dishes.create(req.body)
             .then((dish) => {
-                console.log('Dish created', dish);
                 res.statusCode = 201;
                 res.setHeader('Content-Type', 'application/json');
                 res.json(dish);
@@ -135,7 +134,6 @@ dishRouter.route('/:dishId/comments')
                     for (var i = (dish.comments.length - 1); i >= 0; i--) {
                         // To access each sub-document: 
                         // dish.comments.id(_id)
-                        console.log('what is i ', i);
                         dish.comments.id(dish.comments[i]._id).remove()
                     }
                     dish.save() // returns the updated dish object
